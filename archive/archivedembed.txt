@@ -1,0 +1,35 @@
+        /*if(type.equalsIgnoreCase("bball")){
+
+            embedBuilder.setTitle("BBall Lobby #" + id + combinedPlayers.size() + "/4");
+            embedBuilder.addField("Blu/2", combinedPlayers.get(1).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(1).size() + "/4", true);
+            embedBuilder.addField("Red/2", combinedPlayers.get(1).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(1).size() + "/4", true);
+
+        }else if(type.equalsIgnoreCase("ultiduo")){
+
+            embedBuilder.setTitle("Ultiduo Lobby #" + id + combinedPlayers.size() + "/4");
+            embedBuilder.addField("Soldier/2", combinedPlayers.get(1).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(1).size() + "/2", true);
+            embedBuilder.addField("Medic/2", combinedPlayers.get(6).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(6).size() + "/2", true);
+
+        }else if(type.equalsIgnoreCase("6s")){
+
+            embedBuilder.setTitle("6s Lobby #" + id + combinedPlayers.size() + "/12");
+            embedBuilder.addField("Scout/4", combinedPlayers.get(0).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(0).size() + "/4", true);
+            embedBuilder.addField("Soldier/4", combinedPlayers.get(1).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(1).size() + "/4", true);
+            embedBuilder.addBlankField(false);
+            embedBuilder.addField("Demoman/2", combinedPlayers.get(3).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(3).size() + "/2", true);
+            embedBuilder.addField("Medic/2", combinedPlayers.get(6).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(6).size() + "/2", true);
+
+        }else if(type.equalsIgnoreCase("highlander")){
+            embedBuilder.setTitle("Highlander Lobby #" + id + combinedPlayers.size() + "/18");
+            embedBuilder.addField("Scout/2", combinedPlayers.get(0).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(0).size() + "/2", true);
+            embedBuilder.addField("Soldier/2", combinedPlayers.get(1).toString().replaceAll(regex, "").replaceAll(", ", "") +combinedPlayers.get(1).size() + "/2", true);
+            embedBuilder.addField("Pyro/2", combinedPlayers.get(2).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(2).size() + "/2", true);
+            embedBuilder.addBlankField(false);
+            embedBuilder.addField("Demoman/2", combinedPlayers.get(3).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(3).size() + "/2", true);
+            embedBuilder.addField("Heavy/2", combinedPlayers.get(4).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(4).size() + "/2", true);
+            embedBuilder.addField("Engineer/2", combinedPlayers.get(5).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(5).size() + "/2", true);
+            embedBuilder.addBlankField(false);
+            embedBuilder.addField("Medic/2", combinedPlayers.get(6).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(6).size() + "/2", true);
+            embedBuilder.addField("Sniper/2", combinedPlayers.get(7).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(7).size() + "/2", true);
+            embedBuilder.addField("Spy/2", combinedPlayers.get(8).toString().replaceAll(regex, "").replaceAll(", ", "") + combinedPlayers.get(8).size() + "/2", true);
+        }*/

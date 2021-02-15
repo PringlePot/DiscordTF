@@ -1,0 +1,10 @@
+Zero Fucks License
+Version 1.0.1, April 2020
+
+Copyright (C) 2020 derin-n
+
+Zero Fucks License
+Terms and Conditions for Copying, Distributing, and Modifying The Subject
+
+1. I give zero fucks about what you do with the subject of this license, software or otherwise, you are free to do whatever you want with it.
+2. I accept no responsibility if anything goes wrong.
