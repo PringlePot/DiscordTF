@@ -12,33 +12,38 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
-class MessageHandler extends ListenerAdapter{
+class MessageHandler extends ListenerAdapter {
 
+    /**
+     * Main message handler
+     * @param event event
+     */
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event){
-
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        if(event.getAuthor().isBot() || event.getAuthor().isFake()){
+            return;
+        }
         Message message = event.getMessage();
 
         String messageContent = message.getContentRaw();
 
-        boolean bot = event.getAuthor().isBot();
 
-        if(event.isFromType(ChannelType.TEXT) && !bot){
+        if (event.isFromType(ChannelType.TEXT) ) {
 
             TextChannel textChannel = event.getTextChannel();
 
-            if(messageContent.startsWith("connect")){
+            if (messageContent.startsWith("connect")) {
 
                 String[] editedMessage = messageContent.split(" ");
-                if(editedMessage.length == 4 && messageContent.contains(";") && messageContent.contains("password")){
+                if (editedMessage.length == 4 && messageContent.contains(";") && messageContent.contains("password")) {
 
                     Document findDoc = new Document();
                     findDoc.put("guildid", event.getGuild().getId());
                     FindIterable<Document> foundDocs = DBConnection.findFromDatabase("connectstatuslist", findDoc);
-                    if(foundDocs != null){
+                    if (foundDocs != null) {
 
                         Document foundDoc = foundDocs.first();
-                        if(foundDoc != null && foundDoc.getBoolean("enabled") != null && !foundDoc.getBoolean("enabled")){
+                        if (foundDoc != null && foundDoc.getBoolean("enabled") != null && !foundDoc.getBoolean("enabled")) {
                             return;
                         }
 
@@ -50,17 +55,17 @@ class MessageHandler extends ListenerAdapter{
                     String connectLink = "steam://connect/" + editedMessage[1].replace(";", "") + "/" + editedMessage[3];
 
                     foundDocs = DBConnection.findFromDatabase("connectchannellist", findDoc);
-                    if(foundDocs != null){
+                    if (foundDocs != null) {
 
                         Document foundDoc = foundDocs.first();
-                        if(foundDoc != null && foundDoc.getString("channelid") != null){
+                        if (foundDoc != null && foundDoc.getString("channelid") != null) {
                             TextChannel foundChannel = event.getGuild().getTextChannelById(foundDoc.getString("channelid"));
-                            if(foundChannel != null){
+                            if (foundChannel != null) {
                                 foundChannel.sendMessage(connectLink).queue();
                             }
                         }
 
-                    }else{
+                    } else {
 
                         textChannel.sendMessage(connectLink).queue();
 
@@ -70,13 +75,13 @@ class MessageHandler extends ListenerAdapter{
 
             }
 
-            if(messageContent.startsWith("-")){
+            if (messageContent.startsWith("-")) {
 
-                if(messageContent.startsWith("-frostyserver")){
+                if (messageContent.startsWith("-frostyserver")) {
 
                     textChannel.sendMessage("steam://connect/94.156.35.43:27015/frosty").queue();
 
-                }else if(messageContent.startsWith("-matches")){
+                } else if (messageContent.startsWith("-matches")) {
 
                     String[] messageArgs = messageContent.split(" ");
 
@@ -84,7 +89,7 @@ class MessageHandler extends ListenerAdapter{
                     findByID.put("userid", event.getAuthor().getId());
                     FindIterable<Document> teamDocs = DBConnection.findFromDatabase("teamlist", findByID);
 
-                    if(teamDocs == null){
+                    if (teamDocs == null) {
 
                         textChannel.sendMessage("you haven't set your etf2l team id").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
                         textChannel.sendMessage("dm me with \"setteam (etf2l team id)\"").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
@@ -94,7 +99,7 @@ class MessageHandler extends ListenerAdapter{
 
                     Document teamDoc = teamDocs.first();
 
-                    if(teamDoc == null){
+                    if (teamDoc == null) {
 
                         textChannel.sendMessage("you haven't set your etf2l team id").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
                         textChannel.sendMessage("dm me with \"setteam (etf2l team id)\"").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
@@ -102,15 +107,15 @@ class MessageHandler extends ListenerAdapter{
 
                     }
 
-                    if(messageArgs.length == 2){
+                    if (messageArgs.length == 2) {
 
-                        if(ETF2LScraper.doesTeamExist(messageArgs[1]) == 1){
+                        if (ETF2LScraper.doesTeamExist(messageArgs[1]) == 1) {
 
                             textChannel.sendMessage("couldn't find etf2l team by that id").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
                             return;
 
                         }
-                        if(ETF2LScraper.doesTeamExist(messageArgs[1]) == 2){
+                        if (ETF2LScraper.doesTeamExist(messageArgs[1]) == 2) {
 
                             textChannel.sendMessage("something went wrong while loading etf2l").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
                             return;
@@ -121,7 +126,7 @@ class MessageHandler extends ListenerAdapter{
                         ETF2LScraper.getMatchesForTeam(textChannel, messageArgs[1]);
 
 
-                    }else{
+                    } else {
 
                         ETF2LScraper.getMatchesForTeam(textChannel, teamDoc.getString("teamid"));
 
@@ -129,17 +134,17 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
 
-                }else if(messageContent.startsWith("-togglehoster")){
+                } else if (messageContent.startsWith("-togglehoster")) {
 
                     Document findByID = new Document();
                     findByID.put("guildid", event.getGuild().getId());
 
                     FindIterable<Document> foundDocs = DBConnection.findFromDatabase("hosterstatuslist", findByID);
 
-                    if(foundDocs != null && foundDocs.first() != null){
+                    if (foundDocs != null && foundDocs.first() != null) {
 
                         Document foundDoc = foundDocs.first();
-                        if(foundDoc != null){
+                        if (foundDoc != null) {
 
                             boolean input;
                             input = !foundDoc.getBoolean("enabled");
@@ -149,15 +154,15 @@ class MessageHandler extends ListenerAdapter{
 
                             DBConnection.safeWriteToDatabase("hosterstatuslist", findByID, inputDoc);
 
-                            if(input){
+                            if (input) {
                                 event.getChannel().sendMessage("Only people with the hoster role or admins can host lobbies").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
-                            }else{
+                            } else {
                                 event.getChannel().sendMessage("Everyone can host lobbies").queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
                             }
 
                         }
 
-                    }else{
+                    } else {
 
                         Document inputDoc = new Document();
                         inputDoc.put("guildid", event.getGuild().getId());
@@ -171,9 +176,9 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
 
-                }else if(messageContent.startsWith("-setconnect")){
+                } else if (messageContent.startsWith("-setconnect")) {
 
-                    if(event.getMember() != null && event.getMember().isOwner()){
+                    if (event.getMember() != null && event.getMember().isOwner()) {
 
                         Document findByID = new Document();
                         findByID.put("guildid", event.getGuild().getId());
@@ -190,17 +195,17 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
 
-                }else if(messageContent.startsWith("-toggleconnect")){
+                } else if (messageContent.startsWith("-toggleconnect")) {
 
                     Document findByID = new Document();
                     findByID.put("guildid", event.getGuild().getId());
 
                     FindIterable<Document> foundDocs = DBConnection.findFromDatabase("connectstatuslist", findByID);
 
-                    if(foundDocs != null && foundDocs.first() != null){
+                    if (foundDocs != null && foundDocs.first() != null) {
 
                         Document foundDoc = foundDocs.first();
-                        if(foundDoc != null){
+                        if (foundDoc != null) {
                             boolean input;
                             input = !foundDoc.getBoolean("enabled");
                             Document inputDoc = new Document();
@@ -212,7 +217,7 @@ class MessageHandler extends ListenerAdapter{
                             event.getChannel().sendMessage("connect links enabled: " + input).queue(botMessage -> botMessage.delete().queueAfter(30, TimeUnit.SECONDS));
                         }
 
-                    }else{
+                    } else {
 
                         Document inputDoc = new Document();
                         inputDoc.put("guildid", event.getGuild().getId());
@@ -226,22 +231,22 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
 
-                }else if(messageContent.startsWith("-newserver")){
+                } else if (messageContent.startsWith("-newserver")) {
 
                     Member member = event.getMember();
 
-                    if(member != null){
+                    if (member != null) {
 
                         NewLobbyManager.reserveServer(member, event.getTextChannel(), messageContent);
                         event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
 
                     }
 
-                }else if(messageContent.startsWith("-endserver")){
+                } else if (messageContent.startsWith("-endserver")) {
 
                     Member member = event.getMember();
 
-                    if(member != null){
+                    if (member != null) {
 
                         NewLobbyManager.endServer(member, event.getTextChannel());
                         event.getMessage().delete().queueAfter(30, TimeUnit.SECONDS);
@@ -252,12 +257,12 @@ class MessageHandler extends ListenerAdapter{
 
             }
 
-        }else if(event.isFromType(ChannelType.PRIVATE) && !bot){
+        } else if (event.isFromType(ChannelType.PRIVATE) ) {
 
-            if(messageContent.startsWith("connect")){
+            if (messageContent.startsWith("connect")) {
 
                 String[] editedMessage = messageContent.split(" ");
-                if(editedMessage.length == 4){
+                if (editedMessage.length == 4) {
 
                     String connectLink = "steam://connect/" + editedMessage[1].replace(";", "") + "/" + editedMessage[3];
                     //System.out.println(connectLink);
@@ -265,10 +270,10 @@ class MessageHandler extends ListenerAdapter{
 
                 }
 
-            }else if(messageContent.startsWith("settoken")){
+            } else if (messageContent.startsWith("settoken")) {
 
                 String[] editedMessage = messageContent.split(" ");
-                if(editedMessage.length == 2){
+                if (editedMessage.length == 2) {
 
                     Document findByID = new Document();
                     findByID.put("userid", event.getAuthor().getId());
@@ -281,18 +286,18 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getChannel().sendMessage("token set").queue();
 
-                }else{
+                } else {
 
                     event.getChannel().sendMessage("settoken (your serveme api token)").queue();
 
                 }
 
-            }else if(messageContent.startsWith("setflag")){
+            } else if (messageContent.startsWith("setflag")) {
 
                 String[] editedMessage = messageContent.split(" ");
-                if(editedMessage.length == 2){
+                if (editedMessage.length == 2) {
 
-                    if(editedMessage[1].equalsIgnoreCase("de") || editedMessage[1].equalsIgnoreCase("nl") || editedMessage[1].equalsIgnoreCase("fr")){
+                    if (editedMessage[1].equalsIgnoreCase("de") || editedMessage[1].equalsIgnoreCase("nl") || editedMessage[1].equalsIgnoreCase("fr")) {
 
                         Document findByID = new Document();
                         findByID.put("userid", event.getAuthor().getId());
@@ -305,22 +310,22 @@ class MessageHandler extends ListenerAdapter{
 
                         event.getChannel().sendMessage("flag set").queue();
 
-                    }else{
+                    } else {
 
                         event.getChannel().sendMessage("flag needs to be one of de/fr/nl").queue();
 
                     }
 
-                }else{
+                } else {
 
                     event.getChannel().sendMessage("setflag (de, fr, nl)").queue();
 
                 }
 
-            }else if(messageContent.startsWith("setrcon")){
+            } else if (messageContent.startsWith("setrcon")) {
 
                 String[] editedMessage = messageContent.split(" ");
-                if(editedMessage.length == 2){
+                if (editedMessage.length == 2) {
 
                     Document findByID = new Document();
                     findByID.put("userid", event.getAuthor().getId());
@@ -333,17 +338,17 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getChannel().sendMessage("rcon set").queue();
 
-                }else{
+                } else {
 
                     event.getChannel().sendMessage("setrcon (your rcon password)").queue();
 
                 }
 
-            }else if(messageContent.startsWith("setteam")){
+            } else if (messageContent.startsWith("setteam")) {
 
                 String[] messageArgs = messageContent.split(" ");
 
-                if(messageArgs.length == 2){
+                if (messageArgs.length == 2) {
 
                     Document findByID = new Document();
                     findByID.put("userid", event.getAuthor().getId());
@@ -352,13 +357,13 @@ class MessageHandler extends ListenerAdapter{
                     inputDoc.put("userid", event.getAuthor().getId());
                     inputDoc.put("teamid", messageArgs[1]);
 
-                    if(ETF2LScraper.doesTeamExist(messageArgs[1]) == 1){
+                    if (ETF2LScraper.doesTeamExist(messageArgs[1]) == 1) {
 
                         event.getChannel().sendMessage("couldn't find etf2l team by that id").queue();
                         return;
 
                     }
-                    if(ETF2LScraper.doesTeamExist(messageArgs[1]) == 2){
+                    if (ETF2LScraper.doesTeamExist(messageArgs[1]) == 2) {
 
                         event.getChannel().sendMessage("something went wrong while loading etf2l").queue();
                         return;
@@ -369,13 +374,13 @@ class MessageHandler extends ListenerAdapter{
 
                     event.getChannel().sendMessage("team set").queue();
 
-                }else{
+                } else {
 
                     event.getChannel().sendMessage("setteam (etf2l team id)").queue();
 
                 }
 
-            }else if(messageContent.startsWith("help")){
+            } else if (messageContent.startsWith("help")) {
 
                 event.getChannel().sendMessage(
                         "```markdown\n" +

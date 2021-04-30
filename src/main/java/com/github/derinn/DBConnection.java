@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 
-class DBConnection{
+class DBConnection {
 
     private final static Logger logger = LoggerFactory.getLogger(DBConnection.class);
 
@@ -19,9 +19,13 @@ class DBConnection{
     private static int connectionEstablishmentTries;
 
     /**
-     * Connect to the database
+     * Connect to the mongodb database
+     *
+     * @param databaseName the name of the database
+     * @param username     username for authentication
+     * @param password     password for authentication
      */
-    static void establishConnection(String databaseName, String username, String password){
+    static void establishConnection(String databaseName, String username, String password) {
 
         MongoCredential credential = MongoCredential.createCredential(username, databaseName, password.toCharArray());
 
@@ -40,11 +44,16 @@ class DBConnection{
 
     }
 
-    static void writeToDatabase(String collectionName, Document inputOject){
+    /**
+     * Writes to database collection
+     * @param collectionName the collection Name
+     * @param inputObject the document to write
+     */
+    static void writeToDatabase(String collectionName, Document inputObject) {
 
-        if(database == null){
+        if (database == null) {
 
-            if(connectionEstablishmentTries > 10){
+            if (connectionEstablishmentTries > 10) {
 
                 logger.error("Database is null, quitting");
                 System.exit(1);
@@ -52,25 +61,31 @@ class DBConnection{
             }
 
             establishAgain();
-            writeToDatabase(collectionName, inputOject);
+            writeToDatabase(collectionName, inputObject);
 
         }
 
         MongoCollection<Document> collection = database.getCollection(collectionName);
-        collection.insertOne(inputOject);
+        collection.insertOne(inputObject);
 
     }
 
-    static void safeWriteToDatabase(String collectionName, Document findObject, Document inputDoc){
+    /**
+     * Write to database safely?
+     * @param collectionName the collection
+     * @param findObject the document to find
+     * @param inputDoc the input doc
+     */
+    static void safeWriteToDatabase(String collectionName, Document findObject, Document inputDoc) {
 
         FindIterable<Document> existingDocs = DBConnection.findFromDatabase(collectionName, findObject);
 
-        if(existingDocs != null && existingDocs.first() != null){
+        if (existingDocs != null && existingDocs.first() != null) {
 
             Document existingDoc = existingDocs.first();
             DBConnection.replaceInDatabase(collectionName, existingDoc, inputDoc);
 
-        }else{
+        } else {
 
             DBConnection.writeToDatabase(collectionName, inputDoc);
 
@@ -78,11 +93,17 @@ class DBConnection{
 
     }
 
-    static FindIterable<Document> findFromDatabase(String collectionName, Document searchObject){
+    /**
+     * Find document from database
+     * @param collectionName the collection Name
+     * @param searchObject the search object
+     * @return The objects it found
+     */
+    static FindIterable<Document> findFromDatabase(String collectionName, Document searchObject) {
 
-        if(database == null){
+        if (database == null) {
 
-            if(connectionEstablishmentTries > 10){
+            if (connectionEstablishmentTries > 10) {
 
                 logger.error("Database is null, quitting");
                 System.exit(1);
@@ -99,11 +120,16 @@ class DBConnection{
 
     }
 
-    static void deleteFromDatabase(String collectionName, Document deleteObject){
+    /**
+     * Delete a document from the database
+     * @param collectionName the collection of the object
+     * @param deleteObject the object to delete
+     */
+    static void deleteFromDatabase(String collectionName, Document deleteObject) {
 
-        if(database == null){
+        if (database == null) {
 
-            if(connectionEstablishmentTries > 10){
+            if (connectionEstablishmentTries > 10) {
 
                 logger.error("Database is null, quitting");
                 System.exit(1);
@@ -120,11 +146,17 @@ class DBConnection{
 
     }
 
-    static void replaceInDatabase(String collectionName, Document initialObject, Document replaceObject){
+    /**
+     * Replace something in the database
+     * @param collectionName the name of the collection
+     * @param initialObject the initial object
+     * @param replaceObject the object to replace  it with
+     */
+    static void replaceInDatabase(String collectionName, Document initialObject, Document replaceObject) {
 
-        if(database == null){
+        if (database == null) {
 
-            if(connectionEstablishmentTries > 10){
+            if (connectionEstablishmentTries > 10) {
 
                 logger.error("Database is null, quitting");
                 System.exit(1);
@@ -141,7 +173,7 @@ class DBConnection{
 
     }
 
-    private static void establishAgain(){
+    private static void establishAgain() {
 
         establishConnection(dbUsername, dbPassword, dbDatabaseName);
         connectionEstablishmentTries++;

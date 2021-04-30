@@ -18,11 +18,16 @@ import java.util.Scanner;
 
 class ETF2LScraper{
 
+    /**
+     * Fetch matches by textchannel and ID
+     * @param textChannel the text channel
+     * @param teamID the team ID
+     */
     static void getMatchesForTeam(TextChannel textChannel, String teamID){
 
         try{
 
-            String urlString = "http://api.etf2l.org/team/" + teamID + "/matches?only_scheduled=1";
+            String urlString = "https://api.etf2l.org/team/" + teamID + "/matches?only_scheduled=1";
 
             //set up the httpclient
             CloseableHttpClient httpclient = HttpClients.createDefault();
@@ -48,10 +53,6 @@ class ETF2LScraper{
 
             //build the response into a json string
             teamJsonString = builder.toString();
-
-            //extract json from div with jsoup
-            /*Document document = Jsoup.parse(teamJsonString);
-            String actualJsonString = document.getElementById("source").text();*/
 
             //create json reader and read the response
             JsonReader reader = Json.createReader(new StringReader(teamJsonString));
@@ -98,11 +99,16 @@ class ETF2LScraper{
     }
 
 
+    /**
+     * Checks if the team exists
+     * @param teamID the team id
+     * @return 1 or 0
+     */
     static int doesTeamExist(String teamID){
 
         try{
 
-            String urlString = "http://api.etf2l.org/team/" + teamID + "/matches?only_scheduled=1";
+            String urlString = "https://api.etf2l.org/team/" + teamID + "/matches?only_scheduled=1";
 
             //set up the httpclient
             CloseableHttpClient httpclient = HttpClients.createDefault();

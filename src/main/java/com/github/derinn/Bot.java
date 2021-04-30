@@ -7,18 +7,22 @@ import net.dv8tion.jda.api.entities.Activity;
 import javax.security.auth.login.LoginException;
 import java.util.Scanner;
 
-public class Bot{
+public class Bot {
 
-    public static void main(String[] args){
+    /**
+     * Main bot instance
+     * @param args args bla
+     */
+    public static void main(String[] args) {
 
-        if(args.length != 4){
+        if (args.length != 4) {
 
-            System.out.println("need to input discord token, mongodb database name, user, and password");
+            System.out.println("Usage: java -jar DiscordTF.jar token databaseName databaseUsername databasePassword");
             System.exit(1);
 
         }
 
-        try{
+        try {
 
             JDA jda = JDABuilder.createDefault(args[0])
                     .addEventListeners(new MessageHandler())
@@ -34,13 +38,13 @@ public class Bot{
 
             String input = scanner.nextLine();
 
-            if(input.equalsIgnoreCase("exit")){
+            if (input.equalsIgnoreCase("exit")) {
 
                 jda.shutdown();
 
             }
 
-        }catch(LoginException | InterruptedException loginException){
+        } catch (LoginException | InterruptedException loginException) {
 
             loginException.printStackTrace();
 

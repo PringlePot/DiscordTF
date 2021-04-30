@@ -19,6 +19,7 @@ import org.bson.Document;
 import javax.json.*;
 import java.awt.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -43,13 +44,24 @@ class NewLobbyManager{
     //lobby messages in guild, guildid (lobbyid, messageid)
     static HashMap<String, HashMap<Integer, String>> lobbyMessagesInServer = new HashMap<>();
     //serveme stuff
-    private static HashMap<String, ArrayList<Integer>> playersReservation = new HashMap<>();
-    private static HashMap<String, Integer> playerReservationTries = new HashMap<>();
+    private static final HashMap<String, ArrayList<Integer>> playersReservation = new HashMap<>();
+    private static final HashMap<String, Integer> playerReservationTries = new HashMap<>();
     //list of players in lobbies in guild
-    private static HashMap<String, ArrayList<Member>> playersInServer = new HashMap<>();
+    private static final HashMap<String, ArrayList<Member>> playersInServer = new HashMap<>();
     //lobbies in guild, guildid lobby
     static HashMap<String, HashMap<Integer, NewLobby>> lobbiesInServer = new HashMap<>();
 
+    /**
+     * Creates a lobby
+     * @param guild discord guild
+     * @param textChannel discord text channel
+     * @param type lobby type
+     * @param league lobby league
+     * @param map lobby map
+     * @param reserveServer if there should be a reserve server
+     * @param host the host of the lobby
+     * @param maxPlayers the max amount of players
+     */
     static void createLobby(Guild guild, TextChannel textChannel, String type, String league, String map, Boolean reserveServer, Member host, Integer maxPlayers){
 
         if(!lobbiesInServer.containsKey(guild.getId()) || (lobbiesInServer.containsKey(guild.getId()) && lobbiesInServer.get(guild.getId()).keySet().size() < 3)){
@@ -110,7 +122,13 @@ class NewLobbyManager{
 
     }
 
-    //idk any better ok
+    /**
+     * Updates the lobby messages
+     * @param guild discord guild
+     * @param textChannel discord textchannel
+     * @param id the id
+     * @param ending if the match is ending
+     */
     private static void updateLobbyMessages(Guild guild, TextChannel textChannel, Integer id, Boolean ending){
 
         String type = lobbiesInServer.get(guild.getId()).get(id).getType();
@@ -180,29 +198,36 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * Adds reactions for classes
+     * @param guild the discord guild
+     * @param message the message
+     * @param type the lobby type
+     */
     private static void addClassReactions(Guild guild, Message message, String type){
 
 
         ArrayList<String> tempClasses;
 
-        if(type.equalsIgnoreCase("bball")){
 
-            tempClasses = bballClassList;
-
-        }else if(type.equalsIgnoreCase("ultiduo")){
-
-            tempClasses = ultiduoClassList;
-
-        }else if(type.equalsIgnoreCase("6s")){
-
-            tempClasses = sixClassList;
-
-        }else{
-
-            tempClasses = hlClassList;
+        switch (type){
+            case "bball":{
+                tempClasses = bballClassList;
+                break;
+            }
+            case "ultiduo":{
+                tempClasses = ultiduoClassList;
+                break;
+            }
+            case "6s":{
+                tempClasses = sixClassList;
+                break;
+            }
+            default:{
+                tempClasses = hlClassList;
+            }
 
         }
-
         for(String classEmoteName : tempClasses){
 
             for(Emote emote : guild.getEmotes()){
@@ -219,6 +244,14 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * Joins a lobby
+     * @param guild discord guild
+     * @param textChannel text channel
+     * @param id id
+     * @param member member
+     * @param reaction the reaction
+     */
     static void joinLobby(Guild guild, TextChannel textChannel, Integer id, Member member, MessageReaction.ReactionEmote reaction){
 
         if(!playersInServer.containsKey(guild.getId())){
@@ -231,9 +264,6 @@ class NewLobbyManager{
 
             if(lobbiesInServer.containsKey(guildID) && lobbiesInServer.get(guildID).get(id) != null){
 
-                /*if(lobbiesInServer.get(guildID).get(id).getCombinedPlayers().size() == 0){
-                    createTextChannelForLobby(guild, id);
-                }*/
 
                 //lobbiesInServer.get(guild.getId()).get(id)
                 String className = reaction.getName().substring(3);
@@ -290,6 +320,14 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * Leaves a lobby
+     * @param guild guild
+     * @param textChannel text channel
+     * @param id the id
+     * @param member the member
+     * @param reaction the reaction emote
+     */
     static void leaveLobby(Guild guild, TextChannel textChannel, Integer id, Member member, MessageReaction.ReactionEmote reaction){
 
         if(!playersInServer.containsKey(guild.getId())){
@@ -333,18 +371,23 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * Starts a lobby
+     * @param guild the discord guild
+     * @param textChannel the discord text channel
+     * @param id the id
+     */
     private static void startLobby(Guild guild, TextChannel textChannel, Integer id){
 
         //if reserveserver
         if(lobbiesInServer.get(guild.getId()).get(id).getReserveServer()){
 
-            String servemeType = "6";
-            if(lobbiesInServer.get(guild.getId()).get(id).getType().equalsIgnoreCase("bball")){
-                servemeType = "bball";
-            }else if(lobbiesInServer.get(guild.getId()).get(id).getType().equalsIgnoreCase("ultiduo")){
-                servemeType = "ultiduo";
-            }else if(lobbiesInServer.get(guild.getId()).get(id).getType().equalsIgnoreCase("highlander")){
+            String servemeType;
+            servemeType = lobbiesInServer.get(guild.getId()).get(id).getType().toLowerCase(Locale.ROOT);
+            if(lobbiesInServer.get(guild.getId()).get(id).getType().equalsIgnoreCase("highlander")){
                 servemeType = "9";
+            }else if(lobbiesInServer.get(guild.getId()).get(id).getType().equalsIgnoreCase("6s")){
+                servemeType = "6";
             }
 
             String args = "-newserver " + lobbiesInServer.get(guild.getId()).get(id).getLeague() + " " + servemeType + " " + lobbiesInServer.get(guild.getId()).get(id).getMap();
@@ -358,6 +401,13 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * Ends a lobby
+     * @param guild the discord guild
+     * @param textChannel the discord text channel
+     * @param id the game id
+     * @param deleteMessage should it delete the message
+     */
     static void endLobby(Guild guild, TextChannel textChannel, Integer id, Boolean deleteMessage){
 
         if(lobbiesInServer.containsKey(guild.getId())){
@@ -405,6 +455,12 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * Reserve a server
+     * @param member the member
+     * @param textChannel textchannel
+     * @param messageContent messageContent
+     */
     static void reserveServer(Member member, TextChannel textChannel, String messageContent){
 
         Document findByID = new Document();
@@ -654,7 +710,7 @@ class NewLobbyManager{
             if(response.getStatusLine().getStatusCode() == 200){
 
                 //try reading the response
-                try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "utf-8"))){
+                try(BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), StandardCharsets.UTF_8))){
 
                     //define builder
                     StringBuilder responseBuilder = new StringBuilder();
@@ -788,7 +844,7 @@ class NewLobbyManager{
 
                                                         //read response
                                                         try(BufferedReader bufferedResultReader = new BufferedReader(new InputStreamReader(response.getEntity().
-                                                                getContent(), "utf-8"))){
+                                                                getContent(), StandardCharsets.UTF_8))){
 
                                                             //response as json string
                                                             responseBuilder = new StringBuilder();
@@ -842,17 +898,15 @@ class NewLobbyManager{
 
                                                         }
 
-                                                        return;
-
                                                     }else{
 
                                                         //System.out.println(response.getStatusLine());
                                                         //close response
                                                         response.close();
                                                         textChannel.sendMessage("couldn't reserve a server").queue();
-                                                        return;
 
                                                     }
+                                                    return;
 
                                                 }catch(Exception ex){
                                                     ex.printStackTrace();
@@ -897,6 +951,11 @@ class NewLobbyManager{
 
     }
 
+    /**
+     * end a server
+     * @param member the member
+     * @param textChannel the text channel
+     */
     static void endServer(Member member, TextChannel textChannel){
 
         //check then end
@@ -997,6 +1056,9 @@ class NewLobbyManager{
         }
     }
 
+    /**
+     * Message courtier that its crashed lol
+     */
     private static void messageCourtier(){
         File file = new File("crashed.txt");
         try{
@@ -1010,6 +1072,10 @@ class NewLobbyManager{
         }
     }
 
+    /**
+     * Generate a random password
+     * @return the generated password
+     */
     private static String generatePassword(){
         String password;
         StringBuilder builder = new StringBuilder();
